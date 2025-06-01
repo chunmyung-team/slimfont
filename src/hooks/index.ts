@@ -1,0 +1,1 @@
+export {useFontSubset} from './useFontSubset';
