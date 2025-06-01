@@ -1,4 +1,4 @@
-import React, {useState, useRef} from 'react';
+import React, {useState, useRef, useEffect} from 'react';
 import * as opentype from 'opentype.js';
 import {saveAs} from 'file-saver';
 import './index.css';
@@ -9,6 +9,8 @@ const App: React.FC = () => {
   const [isProcessing, setIsProcessing] = useState(false);
   const [previewText, setPreviewText] = useState('Preview text');
   const [fontName, setFontName] = useState('');
+  const [fontUrl, setFontUrl] = useState<string>('');
+  const [previewFontFamily, setPreviewFontFamily] = useState<string>('');
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const handleFileUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -20,11 +22,40 @@ const App: React.FC = () => {
       const font = opentype.parse(arrayBuffer);
       setUploadedFont(font);
       setFontName(file.name);
+
+      // 폰트 파일을 URL로 변환하여 미리보기에 사용
+      const blob = new Blob([arrayBuffer], {type: 'font/truetype'});
+      const url = URL.createObjectURL(blob);
+      setFontUrl(url);
     } catch (error) {
       alert('Error reading font file.');
       console.error(error);
     }
   };
+
+  // 폰트 URL이 변경될 때마다 CSS font-face 규칙을 동적으로 추가
+  useEffect(() => {
+    if (fontUrl && uploadedFont) {
+      const fontFamilyName = `PreviewFont_${Date.now()}`;
+      setPreviewFontFamily(fontFamilyName);
+
+      const style = document.createElement('style');
+      style.textContent = `
+        @font-face {
+          font-family: '${fontFamilyName}';
+          src: url('${fontUrl}') format('truetype');
+        }
+      `;
+      document.head.appendChild(style);
+
+      // 이전 스타일 태그 정리
+      return () => {
+        if (document.head.contains(style)) {
+          document.head.removeChild(style);
+        }
+      };
+    }
+  }, [fontUrl, uploadedFont]);
 
   const getUniqueCharacters = (text: string): string[] => {
     return Array.from(new Set(text.split('')));
@@ -80,6 +111,11 @@ const App: React.FC = () => {
     setUploadedFont(null);
     setFontName('');
     setPreviewText('Preview text');
+    setPreviewFontFamily('');
+    if (fontUrl) {
+      URL.revokeObjectURL(fontUrl);
+      setFontUrl('');
+    }
     if (fileInputRef.current) {
       fileInputRef.current.value = '';
     }
@@ -148,11 +184,14 @@ const App: React.FC = () => {
                 <div
                   className="text-2xl p-4 bg-gray-50 rounded"
                   style={{
-                    fontFamily: uploadedFont.names.fontFamily?.en || 'serif',
+                    fontFamily: previewFontFamily || 'serif',
                     minHeight: '60px',
                   }}
                 >
                   {previewText}
+                </div>
+                <div className="mt-2 text-sm text-gray-500">
+                  Font name: {uploadedFont.names.fontFamily?.en || uploadedFont.names.fontFamily?.ko || 'Unknown'}
                 </div>
               </div>
             </div>
