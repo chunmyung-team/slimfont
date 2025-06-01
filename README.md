@@ -1,3 +1,3 @@
 # SlimFont
 
-Lightweight Hangul Webfont converter
+Webfont picker for lightweight
