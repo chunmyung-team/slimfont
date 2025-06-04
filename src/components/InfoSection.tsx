@@ -7,7 +7,7 @@ export const InfoSection: React.FC = () => {
       <ul className="text-sm text-blue-700 space-y-1">
         <li>• Upload TTF, OTF, WOFF, WOFF2 font files</li>
         <li>• Input characters you want to include</li>
-        <li>• The font will be downloaded in TTF format</li>
+        <li>• The font can be downloaded in TTF, WOFF format</li>
         <li>• Duplicate characters are automatically removed</li>
       </ul>
     </div>
