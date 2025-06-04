@@ -6,6 +6,7 @@ import {
   ALPHABET_UPPER,
   ALPHABET_LOWER,
   PUNCTUATION,
+  PRIMARY_JAPANESE,
 } from '../subset-template';
 
 interface TemplateSelectorProps {
@@ -48,6 +49,11 @@ const templates: Template[] = [
     name: 'Punctuation',
     content: PUNCTUATION,
     preview: '!"#$%&()*+,-./:;<=>?@[\\]_`|~',
+  },
+  {
+    name: 'Primary Japanese + Chinese',
+    content: PRIMARY_JAPANESE,
+    preview: 'あいうえおかきくけこさしすせそたちつて...',
   },
 ];
 
