@@ -22,8 +22,8 @@ const App: React.FC = () => {
     resetFont();
   };
 
-  const handleDownload = async () => {
-    await createSubsetFont(inputText);
+  const handleDownload = async (format: 'ttf' | 'woff') => {
+    await createSubsetFont(inputText, format);
   };
 
   return (

@@ -1,6 +1,7 @@
 import {useState, useEffect} from 'react';
 import * as opentype from 'opentype.js';
 import {saveAs} from 'file-saver';
+import {ttf2woff, init} from 'wasm-ttf2woff';
 
 export const useFontSubset = () => {
   const [uploadedFont, setUploadedFont] = useState<opentype.Font | null>(null);
@@ -53,7 +54,7 @@ export const useFontSubset = () => {
     return Array.from(new Set(text.split('')));
   };
 
-  const createSubsetFont = async (inputText: string) => {
+  const createSubsetFont = async (inputText: string, format: 'ttf' | 'woff' = 'ttf') => {
     if (!uploadedFont || !inputText.trim()) {
       throw new Error('Please input font file and text.');
     }
@@ -85,11 +86,21 @@ export const useFontSubset = () => {
       // 폰트를 ArrayBuffer로 변환
       const fontBuffer = subsetFont.toArrayBuffer();
 
-      // 파일 다운로드
-      const blob = new Blob([fontBuffer], {type: 'font/truetype'});
-      const fileName = `${fontName.replace(/\.[^/.]+$/, '')}_subset.ttf`;
-      saveAs(blob, fileName);
-    } catch {
+      if (format === 'woff') {
+        // TTF를 WOFF로 변환
+        await init('ttf2woff.wasm');
+        const woffBuffer = await ttf2woff(new Uint8Array(fontBuffer));
+        const blob = new Blob([woffBuffer], {type: 'font/woff'});
+        const fileName = `${fontName.replace(/\.[^/.]+$/, '')}_subset.woff`;
+        saveAs(blob, fileName);
+      } else {
+        // TTF 파일 다운로드
+        const blob = new Blob([fontBuffer], {type: 'font/truetype'});
+        const fileName = `${fontName.replace(/\.[^/.]+$/, '')}_subset.ttf`;
+        saveAs(blob, fileName);
+      }
+    } catch (error) {
+      console.error('Font processing error:', error);
       throw new Error('Error processing font.');
     } finally {
       setIsProcessing(false);
