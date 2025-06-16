@@ -51,7 +51,7 @@ const templates: Template[] = [
     preview: '!"#$%&()*+,-./:;<=>?@[\\]_`|~',
   },
   {
-    name: 'Primary Japanese + Chinese',
+    name: 'Primary Japanese + Kanji',
     content: PRIMARY_JAPANESE,
     preview: 'あいうえおかきくけこさしすせそたちつて...',
   },
