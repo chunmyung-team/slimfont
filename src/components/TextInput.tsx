@@ -1,4 +1,4 @@
-import React from 'react';
+import React, {useRef} from 'react';
 import {TemplateSelector} from './TemplateSelector';
 
 interface TextInputProps {
@@ -8,10 +8,24 @@ interface TextInputProps {
 }
 
 export const TextInput: React.FC<TextInputProps> = ({inputText, onTextChange, getUniqueCharacters}) => {
+  const textareaRef = useRef<HTMLTextAreaElement>(null);
+
   const handleTemplateSelect = (templateContent: string) => {
     // 기존 텍스트에 템플릿 내용을 추가 (중복 제거는 getUniqueCharacters에서 처리됨)
     const newText = inputText + templateContent;
     onTextChange(newText);
+    // 템플릿 선택 시 textarea로 스크롤
+    setTimeout(() => {
+      if (textareaRef.current) {
+        const rect = textareaRef.current.getBoundingClientRect();
+        const isPartiallyInViewport =
+          rect.bottom > 0 && rect.top < (window.innerHeight || document.documentElement.clientHeight);
+        if (!isPartiallyInViewport) {
+          textareaRef.current.scrollIntoView({behavior: 'smooth', block: 'center'});
+        }
+        textareaRef.current.focus();
+      }
+    }, 0);
   };
 
   const handleClearText = () => {
@@ -26,6 +40,7 @@ export const TextInput: React.FC<TextInputProps> = ({inputText, onTextChange, ge
 
       <div className="relative">
         <textarea
+          ref={textareaRef}
           value={inputText}
           onChange={e => onTextChange(e.target.value)}
           placeholder="Input characters you want to include. e.g. 안녕하세요 123"
